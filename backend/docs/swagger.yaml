@@ -1,0 +1,308 @@
+basePath: /api
+definitions:
+  model.Post:
+    properties:
+      content:
+        type: string
+      cover_image:
+        type: string
+      created_at:
+        type: string
+      excerpt:
+        type: string
+      id:
+        type: string
+      published_at:
+        type: string
+      slug:
+        type: string
+      status:
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/model.Tag'
+        type: array
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.PostCreateRequest:
+    properties:
+      content:
+        type: string
+      cover_image:
+        type: string
+      excerpt:
+        type: string
+      slug:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+    required:
+    - content
+    - cover_image
+    - excerpt
+    - slug
+    - tags
+    - title
+    type: object
+  model.PostSummary:
+    properties:
+      cover_image:
+        type: string
+      excerpt:
+        type: string
+      id:
+        type: string
+      published_at:
+        type: string
+      slug:
+        type: string
+      status:
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/model.Tag'
+        type: array
+      title:
+        type: string
+    type: object
+  model.Project:
+    properties:
+      created_at:
+        type: string
+      excerpt:
+        type: string
+      github_url:
+        type: string
+      id:
+        type: string
+      post_url:
+        type: string
+      preview_image:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.ProjectCreateRequest:
+    properties:
+      excerpt:
+        type: string
+      github_url:
+        type: string
+      post_url:
+        type: string
+      preview_image:
+        type: string
+      title:
+        type: string
+    required:
+    - excerpt
+    - github_url
+    - preview_image
+    - title
+    type: object
+  model.Tag:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+host: 127.0.0.1:5000
+info:
+  contact: {}
+  description: EdgarCodes Backend serves personal website files and utilities
+  title: EdgarCodesAPI
+  version: "1.0"
+paths:
+  /post:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new post
+      parameters:
+      - description: Post payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PostCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a post
+      tags:
+      - posts
+  /posts:
+    get:
+      description: Retrieves a list of all post summaries
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.PostSummary'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all post summaries
+      tags:
+      - posts
+  /posts/{post_id}:
+    get:
+      description: Retrieves a single post by its ID
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Post'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get post by ID
+      tags:
+      - posts
+  /project:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new project
+      parameters:
+      - description: Project payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ProjectCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a project
+      tags:
+      - projects
+  /project/{project_id}:
+    get:
+      description: Retrieves a single project by its ID
+      parameters:
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Project'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get project by ID
+      tags:
+      - projects
+  /projects:
+    get:
+      description: Retrieves a list of all projects
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Project'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all projects
+      tags:
+      - projects
+swagger: "2.0"
