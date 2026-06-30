@@ -1,6 +1,10 @@
 @import "tailwindcss";
-@import '@hackernoon/pixel-icon-library/fonts/iconfont.css';
+@import "@hackernoon/pixel-icon-library/fonts/iconfont.css";
 
 body {
-    font-family: Courier, monospace;
+  font-family: Courier, monospace;
+}
+
+* {
+  scrollbar-width: none;
 }
