@@ -70,7 +70,7 @@ function Home() {
         {!isLoading?<div className="space-y-3">
           {projects?.map((project, i) => {
             if(i > 2) return // Only display first 3
-            const tags = project.tags.map((t) => t.name)
+            const tags = (project.tags ?? []).map((t) => t.name)
             return <ProjectCard url={project.github_url} title={project.title} description={project.excerpt} tags={tags} key={project.id}/>
           })}
         </div>:<div/>}
@@ -90,7 +90,7 @@ function Home() {
         {!postsLoading?<div className="space-y-3">
           {posts?.map((post, i) => {
             if(i > 2) return // Only display first 3
-            const tags = post.tags.map((t) => t.name)
+            const tags = (post.tags ?? []).map((t) => t.name)
             const published_at = post.published_at == null
               ? "N/A"
               : new Date(post.published_at).toLocaleDateString("en-US", {

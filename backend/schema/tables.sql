@@ -6,6 +6,7 @@ CREATE TABLE posts (
   content       TEXT NOT NULL,
   cover_image   TEXT,
   status        TEXT NOT NULL DEFAULT 'draft',
+  read_time     TEXT NOT NULL,
   published_at  TIMESTAMPTZ,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -14,12 +15,6 @@ CREATE TABLE posts (
 CREATE TABLE tags (
   id    SERIAL PRIMARY KEY,
   name  TEXT UNIQUE NOT NULL
-);
-
-CREATE TABLE post_tags (
-  post_id  UUID REFERENCES posts(id) ON DELETE CASCADE,
-  tag_id   INT  REFERENCES tags(id)  ON DELETE CASCADE,
-  PRIMARY KEY (post_id, tag_id)
 );
 
 CREATE TABLE projects (
@@ -32,3 +27,15 @@ CREATE TABLE projects (
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 )
+
+CREATE TABLE post_tags (
+  post_id  UUID REFERENCES posts(id) ON DELETE CASCADE,
+  tag_id   INT  REFERENCES tags(id)  ON DELETE CASCADE,
+  PRIMARY KEY (post_id, tag_id)
+);
+
+CREATE TABLE project_tags (
+  project_id  UUID REFERENCES projects(id) ON DELETE CASCADE,
+  tag_id      INT  REFERENCES tags(id)  ON DELETE CASCADE,
+  PRIMARY KEY (project_id, tag_id)
+);

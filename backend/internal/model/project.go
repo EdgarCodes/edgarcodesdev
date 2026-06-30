@@ -11,6 +11,7 @@ type Project struct {
 	PostURL      string      `json:"post_url"`
 	CreatedAt    time.Time 	 `json:"created_at"`
 	UpdatedAt    time.Time   `json:"updated_at"`
+	Tags 		[]Tag		`json:"tags"`
 }
 
 type ProjectCreateRequest struct {
@@ -19,4 +20,5 @@ type ProjectCreateRequest struct {
 	PreviewImage string `json:"preview_image" binding:"required"`
 	GithubURL    string `json:"github_url" binding:"required"`
 	PostURL      string `json:"post_url"`
+	Tags 		[]string	`json:"tags"`
 }

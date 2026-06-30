@@ -15,6 +15,7 @@ type Post struct {
 	Content     string		`json:"content"`
 	CoverImage  string		`json:"cover_image"`
 	Status      string		`json:"status"`
+	ReadTime    string		`json:"read_time"`
 	PublishedAt *time.Time	`json:"published_at"`
 	CreatedAt   time.Time	`json:"created_at"`
 	UpdatedAt   time.Time 	`json:"updated_at"`
@@ -28,6 +29,7 @@ type PostSummary struct{
 	Excerpt     string		`json:"excerpt"`
 	CoverImage  string		`json:"cover_image"`
 	Status      string		`json:"status"`
+	ReadTime    string		`json:"read_time"`
 	PublishedAt *time.Time	`json:"published_at"`
 	Tags 		[]Tag		`json:"tags"`
 }
@@ -38,5 +40,6 @@ type PostCreateRequest struct {
 	Excerpt     string		`json:"excerpt" binding:"required"`
 	Content     string		`json:"content" binding:"required"`
 	CoverImage  string		`json:"cover_image" binding:"required"`
+	ReadTime    string		`json:"read_time"`
 	Tags		[]string    `json:"tags" binding:"required"`
 }

@@ -21,7 +21,7 @@ func (r *PostRepository) GetPostByID(ctx context.Context, postID string) (*model
 	// Get Post
 	query := `
 		SELECT id, slug, title, excerpt, content, cover_image,
-		       status, published_at, created_at , updated_at
+		       status, read_time, published_at, created_at , updated_at
 		FROM posts p
 		WHERE id = $1
 		LIMIT 1;
@@ -30,7 +30,7 @@ func (r *PostRepository) GetPostByID(ctx context.Context, postID string) (*model
 	var p model.Post
 	err := r.db.QueryRow(ctx, query, postID).Scan(&p.ID, &p.Slug, 
 		&p.Title, &p.Excerpt, &p.Content, &p.CoverImage, &p.Status,
-		&p.PublishedAt, &p.CreatedAt, &p.UpdatedAt)
+		&p.ReadTime, &p.PublishedAt, &p.CreatedAt, &p.UpdatedAt)
 	
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -40,7 +40,7 @@ func (r *PostRepository) GetPostByID(ctx context.Context, postID string) (*model
 	}
 
 	// Fetch Tags
-	tags, err := r.GetTagsByPostID(ctx, postID)
+	tags, err := GetTagsByID(r.db, "posts", ctx, postID)
 	if err != nil {
 		return nil, err
 	}
@@ -49,11 +49,15 @@ func (r *PostRepository) GetPostByID(ctx context.Context, postID string) (*model
 		p.Tags = append(p.Tags, t)
 	}
 
+	if p.Tags == nil {
+		p.Tags = []model.Tag{}
+	}
+
 	return &p, nil
 }
 
 func (r *PostRepository) GetAllPostSummaries(ctx context.Context) ([]model.PostSummary, error) {
-    query := `SELECT id, slug, title, excerpt, cover_image, status, published_at FROM posts`
+    query := `SELECT id, slug, title, excerpt, cover_image, status, read_time, published_at FROM posts`
     rows, err := r.db.Query(ctx, query)
     if err != nil {
         return nil, err
@@ -63,12 +67,12 @@ func (r *PostRepository) GetAllPostSummaries(ctx context.Context) ([]model.PostS
     var posts []model.PostSummary
     var postIDs []string
     for rows.Next() {
-        var p model.PostSummary
-        if err := rows.Scan(&p.ID, &p.Slug, &p.Title, &p.Excerpt, &p.CoverImage, &p.Status, &p.PublishedAt); err != nil {
-            return nil, err
-        }
-        posts = append(posts, p)
-        postIDs = append(postIDs, p.ID)
+  		var p model.PostSummary
+			if err := rows.Scan(&p.ID, &p.Slug, &p.Title, &p.Excerpt, &p.CoverImage, &p.Status, &p.ReadTime, &p.PublishedAt); err != nil {
+					return nil, err
+			}
+			posts = append(posts, p)
+			postIDs = append(postIDs, p.ID)
     }
 
     if len(posts) == 0 {
@@ -76,30 +80,16 @@ func (r *PostRepository) GetAllPostSummaries(ctx context.Context) ([]model.PostS
     }
 
     // One query for ALL tags across all posts
-    tagsQuery := `
-        SELECT pt.post_id, t.id, t.name
-        FROM tags t
-        JOIN post_tags pt ON pt.tag_id = t.id
-        WHERE pt.post_id = ANY($1)
-    `
-    tagRows, err := r.db.Query(ctx, tagsQuery, postIDs)
-    if err != nil {
-        return nil, err
-    }
-    defer tagRows.Close()
-
-    tagsByPost := make(map[string][]model.Tag)
-    for tagRows.Next() {
-        var postID string
-        var tag model.Tag
-        if err := tagRows.Scan(&postID, &tag.ID, &tag.Name); err != nil {
-            return nil, err
-        }
-        tagsByPost[postID] = append(tagsByPost[postID], tag)
-    }
+	tagsByPost, err := GetTagsbyItem(r.db, "posts", ctx, postIDs)
+	if err != nil {
+		return nil, err
+	}
 
     for i := range posts {
         posts[i].Tags = tagsByPost[posts[i].ID]
+		if posts[i].Tags == nil {
+			posts[i].Tags = []model.Tag{}
+		}
     }
 
     return posts, nil
@@ -113,8 +103,8 @@ func (r *PostRepository) CreatePost(ctx context.Context, post model.PostCreateRe
 	defer tx.Rollback(ctx)
 
 	query := `
-		INSERT INTO posts (slug, title, excerpt, content, cover_image, status) 
-		VALUES ($1, $2, $3, $4, $5, 'draft') RETURNING id
+		INSERT INTO posts (slug, title, excerpt, content, cover_image, status, read_time) 
+		VALUES ($1, $2, $3, $4, $5, 'draft', $6) RETURNING id
 	`
 
 	var id string
@@ -124,6 +114,7 @@ func (r *PostRepository) CreatePost(ctx context.Context, post model.PostCreateRe
 		post.Excerpt,
 		post.Content,
 		post.CoverImage,
+		post.ReadTime,
 	).Scan(&id)
 
 	if err != nil {
@@ -131,35 +122,9 @@ func (r *PostRepository) CreatePost(ctx context.Context, post model.PostCreateRe
 	}
 
 	// If tag does not exist create it
-	tagsQuery := `
-		SELECT id, name FROM tags WHERE name = ANY($1)  
-	`
-	rows, err := tx.Query(ctx, tagsQuery, post.Tags); 
+	existingTags, err := CreateTags(tx, ctx, post.Tags)
 	if err != nil {
 		return "", err
-	}
-	defer rows.Close()
-
-	existingTags := make(map[string]int)
-	for rows.Next() {
-		var tag model.Tag
-		if err := rows.Scan(&tag.ID, &tag.Name); err != nil {
-			return "", err
-		}
-		existingTags[tag.Name] = tag.ID
-	}
-
-	for _, t := range post.Tags {
-		if _, exists := existingTags[t]; !exists {
-			// Create new tag
-			insertTagQuery := `INSERT INTO tags (name) VALUES ($1) RETURNING id`
-			var tagID int
-			if err = tx.QueryRow(ctx, insertTagQuery, t).Scan(&tagID); err != nil {
-				return "", err 
-			}
-
-			existingTags[t] = tagID
-		}
 	}
 
 	for _, v := range existingTags {
@@ -172,31 +137,4 @@ func (r *PostRepository) CreatePost(ctx context.Context, post model.PostCreateRe
 	}
 
 	return id, tx.Commit(ctx)
-}
-
-
-func (r *PostRepository) GetTagsByPostID(ctx context.Context, postID string) ([]model.Tag, error) {
-	// Internal function to set tags for post objects
-	tagsQuery := `
-	SELECT t.id, t.name 
-	FROM tags t
-	JOIN post_tags pt ON pt.tag_id = t.id
-	WHERE pt.post_id = $1
-	`
-
-	rows, err := r.db.Query(ctx, tagsQuery, postID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var tags []model.Tag
-	for rows.Next() {
-		var tag model.Tag
-		if err := rows.Scan(&tag.ID, &tag.Name); err != nil {
-			return nil, err
-		}
-		tags = append(tags, tag)
-	}
-	return tags, nil
 }

@@ -61,39 +61,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/posts": {
-            "get": {
-                "description": "Retrieves a list of all post summaries",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "posts"
-                ],
-                "summary": "Get all post summaries",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.PostSummary"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/posts/{post_id}": {
+        "/post/{post_id}": {
             "get": {
                 "description": "Retrieves a single post by its ID",
                 "produces": [
@@ -134,6 +102,38 @@ const docTemplate = `{
                             "type": "object",
                             "additionalProperties": {
                                 "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/posts": {
+            "get": {
+                "description": "Retrieves a list of all post summaries",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Get all post summaries",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.PostSummary"
                             }
                         }
                     },
@@ -315,6 +315,9 @@ const docTemplate = `{
                 "published_at": {
                     "type": "string"
                 },
+                "read_time": {
+                    "type": "string"
+                },
                 "slug": {
                     "type": "string"
                 },
@@ -355,6 +358,9 @@ const docTemplate = `{
                 "excerpt": {
                     "type": "string"
                 },
+                "read_time": {
+                    "type": "string"
+                },
                 "slug": {
                     "type": "string"
                 },
@@ -382,6 +388,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "published_at": {
+                    "type": "string"
+                },
+                "read_time": {
                     "type": "string"
                 },
                 "slug": {
@@ -422,6 +431,12 @@ const docTemplate = `{
                 "preview_image": {
                     "type": "string"
                 },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Tag"
+                    }
+                },
                 "title": {
                     "type": "string"
                 },
@@ -450,6 +465,12 @@ const docTemplate = `{
                 },
                 "preview_image": {
                     "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "title": {
                     "type": "string"

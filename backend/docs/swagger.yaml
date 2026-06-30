@@ -14,6 +14,8 @@ definitions:
         type: string
       published_at:
         type: string
+      read_time:
+        type: string
       slug:
         type: string
       status:
@@ -34,6 +36,8 @@ definitions:
       cover_image:
         type: string
       excerpt:
+        type: string
+      read_time:
         type: string
       slug:
         type: string
@@ -61,6 +65,8 @@ definitions:
         type: string
       published_at:
         type: string
+      read_time:
+        type: string
       slug:
         type: string
       status:
@@ -86,6 +92,10 @@ definitions:
         type: string
       preview_image:
         type: string
+      tags:
+        items:
+          $ref: '#/definitions/model.Tag'
+        type: array
       title:
         type: string
       updated_at:
@@ -101,6 +111,10 @@ definitions:
         type: string
       preview_image:
         type: string
+      tags:
+        items:
+          type: string
+        type: array
       title:
         type: string
     required:
@@ -153,28 +167,7 @@ paths:
       summary: Create a post
       tags:
       - posts
-  /posts:
-    get:
-      description: Retrieves a list of all post summaries
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.PostSummary'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Get all post summaries
-      tags:
-      - posts
-  /posts/{post_id}:
+  /post/{post_id}:
     get:
       description: Retrieves a single post by its ID
       parameters:
@@ -209,6 +202,27 @@ paths:
               type: string
             type: object
       summary: Get post by ID
+      tags:
+      - posts
+  /posts:
+    get:
+      description: Retrieves a list of all post summaries
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.PostSummary'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all post summaries
       tags:
       - posts
   /project:

@@ -26,7 +26,7 @@ func NewPostHandler(postRepo *repositories.PostRepository) *PostHandler {
 // @Failure      400      {object}  map[string]string
 // @Failure      404      {object}  map[string]string
 // @Failure      500      {object}  map[string]string
-// @Router       /posts/{post_id} [get]
+// @Router       /post/{post_id} [get]
 func (h *PostHandler)GetPostsByID(c *gin.Context) {
 	postID := c.Param("post_id")
 	if postID == "" {

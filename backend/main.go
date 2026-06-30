@@ -35,8 +35,7 @@ func main() {
 	defer db.Close()
 
 	// Setup Routes
-	r := routes.SetupRouter(db);
-
+	r := routes.SetupRouter(db)
 
 	if err := r.Run("0.0.0.0:" + PORT); err != nil {
 		panic(err)
