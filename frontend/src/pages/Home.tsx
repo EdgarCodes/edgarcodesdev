@@ -4,6 +4,7 @@ import ProjectCard from "../components/projects/ProjectCard";
 import { getAllProjects } from "../features/projects/api";
 import { getPostSummaries } from "../features/posts/api";
 import ExperienceCard from "../components/experience/ExperienceCard";
+import { Navigate } from "react-router-dom";
 
 function Home() {
   const { data: projects, isLoading, isError, error } = useQuery({
@@ -17,11 +18,11 @@ function Home() {
   })
 
   if (isError || postsIsError) {
-    <div>Issue occurred TODO create error page: {error?.message} {postsError?.message}</div>
+    return <Navigate to="error" replace state={{error: error?.message || "" + "\n" + postsError?.message || "", summaryError: "Could not load projects or posts:"}}/>    
   }
 
   return (
-    <div className="text-white px-10 py-10 max-w-3xl space-y-16">
+    <div className="text-white px-10 py-10 max-w-3xl space-y-8">
       {/* Intro */}
       <section className="space-y-4">
         <div className="flex items-center gap-2 text-[#ffaa48] font-mono text-sm">
@@ -33,8 +34,8 @@ function Home() {
         <p className="text-gray-400 text-lg leading-relaxed">
           Software developer passionate about designing and building large-scale
           systems, automation tools, and simulations. Dedicated to creating
-          software that is clean, <span className="text-white">efficient</span>,
-          and dependable.
+          software that is reliable, <span className="text-white">scalable</span>,
+          and maintainable.
         </p>
         <p className="text-gray-400 text-lg leading-relaxed">
           This site is where I share projects I'm working on and write about
@@ -98,12 +99,12 @@ function Home() {
                   month: "long",
                   day: "numeric",
                 })
-            return <BlogCard key={post.id} url={post.title} title={post.title} description={post.excerpt} tags={tags} date={published_at} readTime={post.read_time}/>
+            return <BlogCard key={post.id} url={post.title} title={post.title} description={post.excerpt} tags={tags} date={published_at} read_time={post.read_time}/>
           })}
         </div>:<div/>}
       </section>
 
-      {/* Blogs */}
+      {/* Experience */}
       <section className="space-y-5">
         <div>
           <h2 className="text-xl font-bold">My Experience</h2>

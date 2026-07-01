@@ -6,6 +6,8 @@ import Footer from "./components/Footer";
 import Projects from "./pages/Projects";
 import Contact from "./pages/Contact";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Error from "./pages/Error";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,6 +42,8 @@ const router = createBrowserRouter([
       { path: "/blogs", element: <Blogs /> },
       { path: "/projects", element: <Projects /> },
       { path: "/contact", element: <Contact /> },
+      { path: "/error", element: <Error />},
+      { path: "*", element: <NotFound/>}
     ],
   },
 ]);
