@@ -4,6 +4,7 @@ CREATE TABLE posts (
   title         TEXT NOT NULL,
   excerpt       TEXT,
   content       TEXT NOT NULL,
+  content_html  TEXT NOT NULL,
   cover_image   TEXT,
   status        TEXT NOT NULL DEFAULT 'draft',
   read_time     TEXT NOT NULL,
@@ -26,7 +27,7 @@ CREATE TABLE projects (
   post_url        TEXT,
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
-)
+);
 
 CREATE TABLE post_tags (
   post_id  UUID REFERENCES posts(id) ON DELETE CASCADE,
@@ -38,4 +39,12 @@ CREATE TABLE project_tags (
   project_id  UUID REFERENCES projects(id) ON DELETE CASCADE,
   tag_id      INT  REFERENCES tags(id)  ON DELETE CASCADE,
   PRIMARY KEY (project_id, tag_id)
+);
+
+CREATE TABLE tokens (
+  token_id        INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  token           TEXT NOT NULL,
+  expires_at      TIMESTAMPTZ NOT NULL DEFAULT now() + INTERVAL '60 days',
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );

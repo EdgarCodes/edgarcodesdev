@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 interface BlogCardProps {
   url: string;
   title: string;
@@ -18,8 +20,8 @@ function BlogCard({
   image_url
 }: BlogCardProps) {
   return (
-    <a
-      href={url}
+    <Link
+      to={url}
       className="block p-4 bg-[#292929] border border-[#363636] rounded-md hover:border-[#4a4a4a] transition-colors group"
     >
       {image_url === undefined? <div/>:<div  className="mb-5">
@@ -27,12 +29,12 @@ function BlogCard({
       </div>}
       <div>
         <div className="flex items-center justify-between mb-1">
-          <span className="font-medium group-hover:text-[#ffaa48] transition-colors">
+          <span className="font-mono font-bold group-hover:text-[#ffaa48] transition-colors">
             {title}
           </span>
           <i className="hn hn-arrow-up-right text-gray-600 group-hover:text-gray-400 transition-colors" />
         </div>
-        <p className="text-gray-400 text-sm mb-3">{description}</p>
+        <p className="font-roboto font-light leading-6 tracking-wide text-gray-400 text-sm mb-3">{description}</p>
         <div className="flex gap-3 text-xs text-gray-600 font-mono">
           <span>{date}</span>
           <span>·</span>
@@ -49,7 +51,7 @@ function BlogCard({
           ))}
         </div>
       </div>
-    </a>
+    </Link>
   );
 }
 

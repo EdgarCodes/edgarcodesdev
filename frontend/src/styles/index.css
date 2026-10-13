@@ -1,10 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @import "@hackernoon/pixel-icon-library/fonts/iconfont.css";
 
+@theme {
+  --font-roboto: "Roboto", sans-serif;
+  --animate-blink: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%, 75% {
+    opacity: 1;
+  }
+  75.01%, 100% {
+    opacity: 0;
+  }
+}
+
 body {
-  font-family: Courier, monospace;
+  font-family: Courier, Roboto;
 }
 
 * {
   scrollbar-width: none;
+}
+
+/* Markdown toolbar */
+.w-md-editor-toolbar {
+  background-color: #3f3f3f !important;
+  border-bottom-color: #3b3b3b !important;
+}
+
+.wmde-markdown {
+  background-color: #292929 !important;
+  color: #c7c7c7 !important;
 }

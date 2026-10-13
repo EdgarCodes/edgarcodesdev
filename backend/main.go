@@ -4,6 +4,10 @@
 // @host      		127.0.0.1:5000
 // @BasePath		/api
 
+// @securityDefinitions.apikey API-Key
+// @in                         header
+// @name                       X-API-Key
+
 package main
 
 import (

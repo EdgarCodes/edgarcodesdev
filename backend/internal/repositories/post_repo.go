@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"backend/internal/model"
+	"backend/internal/utils"
 	"context"
 	"errors"
 
@@ -20,16 +21,17 @@ func NewPostRepository(db *pgxpool.Pool) *PostRepository {
 func (r *PostRepository) GetPostByID(ctx context.Context, postID string) (*model.Post, error) {
 	// Get Post
 	query := `
-		SELECT id, slug, title, excerpt, content, cover_image,
+		SELECT id, slug, title, excerpt, content, content_html, cover_image,
 		       status, read_time, published_at, created_at , updated_at
 		FROM posts p
 		WHERE id = $1
+		AND status='published'
 		LIMIT 1;
 	`
 
 	var p model.Post
 	err := r.db.QueryRow(ctx, query, postID).Scan(&p.ID, &p.Slug, 
-		&p.Title, &p.Excerpt, &p.Content, &p.CoverImage, &p.Status,
+		&p.Title, &p.Excerpt, &p.Content, &p.ContentHtml, &p.CoverImage, &p.Status,
 		&p.ReadTime, &p.PublishedAt, &p.CreatedAt, &p.UpdatedAt)
 	
 	if err != nil {
@@ -56,8 +58,48 @@ func (r *PostRepository) GetPostByID(ctx context.Context, postID string) (*model
 	return &p, nil
 }
 
+func (r *PostRepository) GetPostBySlug(ctx context.Context, postSlug string) (*model.Post, error) {
+	// Get Post by slug
+	query := `
+		SELECT id, slug, title, excerpt, content, content_html, cover_image,
+		       status, read_time, published_at, created_at , updated_at
+		FROM posts p
+		WHERE slug = $1
+		AND status='published'
+		LIMIT 1;
+	`
+
+	var p model.Post
+	err := r.db.QueryRow(ctx, query, postSlug).Scan(&p.ID, &p.Slug, 
+		&p.Title, &p.Excerpt, &p.Content, &p.ContentHtml, &p.CoverImage, &p.Status,
+		&p.ReadTime, &p.PublishedAt, &p.CreatedAt, &p.UpdatedAt)
+	
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil  // not found, no error
+		}
+		return nil, err
+	}
+
+	// Fetch Tags
+	tags, err := GetTagsByID(r.db, "posts", ctx, p.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, t := range tags {
+		p.Tags = append(p.Tags, t)
+	}
+
+	if p.Tags == nil {
+		p.Tags = []model.Tag{}
+	}
+
+	return &p, nil
+}
+
 func (r *PostRepository) GetAllPostSummaries(ctx context.Context) ([]model.PostSummary, error) {
-    query := `SELECT id, slug, title, excerpt, cover_image, status, read_time, published_at FROM posts`
+    query := `SELECT id, slug, title, excerpt, cover_image, status, read_time, published_at FROM posts WHERE status='published'`
     rows, err := r.db.Query(ctx, query)
     if err != nil {
         return nil, err
@@ -76,7 +118,7 @@ func (r *PostRepository) GetAllPostSummaries(ctx context.Context) ([]model.PostS
     }
 
     if len(posts) == 0 {
-        return posts, nil
+        return []model.PostSummary{}, nil
     }
 
     // One query for ALL tags across all posts
@@ -103,9 +145,11 @@ func (r *PostRepository) CreatePost(ctx context.Context, post model.PostCreateRe
 	defer tx.Rollback(ctx)
 
 	query := `
-		INSERT INTO posts (slug, title, excerpt, content, cover_image, status, read_time) 
-		VALUES ($1, $2, $3, $4, $5, 'draft', $6) RETURNING id
+		INSERT INTO posts (slug, title, excerpt, content, content_html, cover_image, status, read_time) 
+		VALUES ($1, $2, $3, $4, $5, $6, 'draft', $7) RETURNING id
 	`
+
+	htmlContent := utils.ConvertToHtml(post.Content)
 
 	var id string
 	err = tx.QueryRow(ctx, query,
@@ -113,6 +157,7 @@ func (r *PostRepository) CreatePost(ctx context.Context, post model.PostCreateRe
 		post.Title,
 		post.Excerpt,
 		post.Content,
+		htmlContent,
 		post.CoverImage,
 		post.ReadTime,
 	).Scan(&id)
@@ -137,4 +182,28 @@ func (r *PostRepository) CreatePost(ctx context.Context, post model.PostCreateRe
 	}
 
 	return id, tx.Commit(ctx)
+}
+
+func (r *PostRepository) ReleasePost(ctx context.Context, postID string) error {
+	query := `UPDATE posts SET status = 'published', published_at = now() WHERE id = $1`
+	cmd, err := r.db.Exec(ctx, query, postID)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+	return nil
+}
+
+func (r *PostRepository) DraftPost(ctx context.Context, postID string) error {
+	query := `UPDATE posts SET status = 'draft', published_at = NULL WHERE id = $1`
+	cmd, err := r.db.Exec(ctx, query, postID)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+	return nil
 }

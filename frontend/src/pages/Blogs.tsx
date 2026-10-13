@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getPostSummaries } from "../features/posts/api";
 import { Navigate } from "react-router-dom";
+import { getReadableDate } from "../utils/utils";
 import BlogCard from "../components/blogs/BlogCard";
 
 function Blog() {
@@ -29,14 +30,7 @@ function Blog() {
           {posts?.map((post, i) => {
             if(i > 2) return // Only display first 3
             const tags = (post.tags ?? []).map((t) => t.name)
-            const published_at = post.published_at == null
-              ? "N/A"
-              : new Date(post.published_at).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })
-            return <BlogCard url={post.title} title={post.title} description={post.excerpt} tags={tags} key={post.id} date={published_at} read_time={post.read_time} image_url={post.cover_image}/>
+            return <BlogCard url={"blog/" + post.slug} title={post.title} description={post.excerpt} tags={tags} key={post.id} date={getReadableDate(post.published_at)} read_time={post.read_time} image_url={post.cover_image}/>
           })}
         </div>:<div/>}
       </div>

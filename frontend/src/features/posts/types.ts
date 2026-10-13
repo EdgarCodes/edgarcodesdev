@@ -21,6 +21,7 @@ export type Post = {
     title: string
     excerpt: string
     content: string
+    content_html: string
     cover_image: string
     status: string
     read_time: string
@@ -28,4 +29,18 @@ export type Post = {
     created_at: Date
     Updated_at: Date
     tags: PostTag[] 
+}
+
+export type CreatePost = {
+    slug: string
+    title: string
+    excerpt: string
+    content: string
+    cover_image: string
+    read_time: string
+    tags: string[] 
+}
+
+export type CreatePostResponse = {
+    id: string
 }

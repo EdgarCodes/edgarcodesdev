@@ -1,6 +1,7 @@
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home";
 import Blogs from "./pages/Blogs";
+import Blog from "./pages/Blog";
 import Sidebar from "./components/Sidebar";
 import Footer from "./components/Footer";
 import Projects from "./pages/Projects";
@@ -8,6 +9,7 @@ import Contact from "./pages/Contact";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Error from "./pages/Error";
 import NotFound from "./pages/NotFound";
+import BlogEdit from "./pages/BlogEdit";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,8 +42,10 @@ const router = createBrowserRouter([
     children: [
       { path: "/", element: <Home /> },
       { path: "/blogs", element: <Blogs /> },
+      { path: "/blog/:blog_slug", element: <Blog /> },
       { path: "/projects", element: <Projects /> },
       { path: "/contact", element: <Contact /> },
+      { path: "/blog_edit", element: <BlogEdit />},
       { path: "/error", element: <Error />},
       { path: "*", element: <NotFound/>}
     ],
@@ -51,7 +55,7 @@ const router = createBrowserRouter([
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="bg-[#1f1f1f]">
+      <div className="bg-[#1d1d1d]">
         <RouterProvider router={router} />
       </div>
     </QueryClientProvider>

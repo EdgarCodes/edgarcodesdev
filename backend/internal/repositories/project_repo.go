@@ -88,7 +88,7 @@ func (r *ProjectRepository) GetAllProjects(ctx context.Context) ([]model.Project
 	}
 
 	if len(projects) == 0 {
-        return projects, nil
+        return []model.Project{}, nil
     }
 
     // One query for ALL tags across all posts

@@ -1,15 +1,18 @@
 import NavItem from "./navigation/NavItem";
 import NavIcon from "./navigation/NavIcon";
+import logo from "../assets/logo_2.png"
 
 function Sidebar() {
   return (
     <div className="flex flex-col text-white min-w-65 h-screen border-r border-[#363636]">
       <div className="px-4 py-6">
-        <div className="flex items-center gap-2 mb-1">
-          <i className="hn hn-programming text-[#ffaa48] text-2xl " />
-          <span className="text-xl font-bold tracking-tight">edgar-codes</span>
+        <div className="flex items-center mb-1">
+          <div className="w-11 mb-1 mr-1">
+            <img src={logo}/>
+          </div>
+          <span className="text-2xl font-bold tracking-tight">edgar-codes</span>
         </div>
-        <p className="text-xs text-gray-500 font-mono ml-8">~/portfolio</p>
+        <p className="text-xs text-gray-500 font-mono ml-12">~/portfolio</p>
       </div>
 
       <div className="border-t border-[#363636] mx-4" />

@@ -18,6 +18,12 @@ function Contact() {
       href: "mailto:edgarcodesdba@gmail.com",
       mono: "edgarcodesdba@gmail.com",
     },
+    {
+      label: "Youtube",
+      handle: "https://www.youtube.com/@mint5904",
+      href: "https://www.youtube.com/@mint5904",
+      mono: "https://www.youtube.com/@mint5904",
+    },
   ];
 
   return (
@@ -27,7 +33,7 @@ function Contact() {
           <span>~/contact</span>
         </div>
         <h1 className="text-4xl font-bold tracking-tight">Get in touch</h1>
-        <p className="text-gray-400 text-lg leading-relaxed">
+        <p className="font-roboto font-light text-gray-400 text-lg leading-8 ">
           I'm open to new opportunities, collaborations, or just a good conversation about tech. Reach out however works best for you.
         </p>
       </section>
@@ -42,7 +48,7 @@ function Contact() {
             className="flex items-center justify-between p-4 bg-[#292929] border border-[#363636] rounded-md hover:border-[#4a4a4a] transition-colors group"
           >
             <div className="flex flex-col gap-0.5">
-              <span className="text-sm text-gray-500">{label}</span>
+              <span className="text-sm text-white">{label}</span>
               <span className="font-mono text-[#ffaa48] group-hover:underline text-sm">{mono}</span>
             </div>
             <i className="hn hn-arrow-up-right text-gray-600 group-hover:text-gray-400 transition-colors" />

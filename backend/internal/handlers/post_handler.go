@@ -3,9 +3,11 @@ package handlers
 import (
 	"backend/internal/model"
 	"backend/internal/repositories"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 )
 
 type PostHandler struct {
@@ -48,6 +50,38 @@ func (h *PostHandler)GetPostsByID(c *gin.Context) {
 	c.JSON(http.StatusOK, post)
 }
 
+// GetPostsBySlug godoc
+// @Summary       Get post by its slug
+// @Description   Retrieves a single post by its slug
+// @Tags          posts
+// @Produce       json
+// @Param         post_slug  path      string         true  "Post Slug"
+// @Success       200      {object}  model.Post
+// @Failure       400      {object}  map[string]string
+// @Failure       404      {object}  map[string]string
+// @Failure       500      {object}  map[string]string
+// @Router        /post/slug/{post_slug} [get]
+func (h *PostHandler)GetPostsBySlug(c *gin.Context) {
+	postSlug := c.Param("post_slug")
+	if postSlug == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "post_slug path param is required"})
+		return
+	}
+
+	post, err := h.postRepo.GetPostBySlug(c.Request.Context(), postSlug)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Issue occured retrieving post " + err.Error()})
+		return
+	}
+
+	if post == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Post with postSlug: " + postSlug + " not found."})
+		return
+	}
+
+	c.JSON(http.StatusOK, post)
+}
+
 
 // GetAllPostSummaries godoc
 // @Summary      Get all post summaries
@@ -76,6 +110,7 @@ func (h *PostHandler)GetAllPostSummaries(c *gin.Context) {
 // @Param        body  body      model.PostCreateRequest  true  "Post payload"
 // @Success      200   {object}  map[string]string
 // @Failure      400   {object}  map[string]string
+// @Security     API-Key
 // @Router       /post [post]
 func (h *PostHandler)CreatePost(c *gin.Context) {
 	var req model.PostCreateRequest
@@ -93,4 +128,68 @@ func (h *PostHandler)CreatePost(c *gin.Context) {
 
 
 	c.JSON(http.StatusOK, gin.H{"id": id})
+}
+
+// ReleasePost godoc
+// @Summary      Release a post
+// @Description  Sets a post's status to published and published_at to now
+// @Tags         posts
+// @Produce      json
+// @Param        post_id  path      string  true  "Post ID"
+// @Success      200      {object}  map[string]string
+// @Failure      400      {object}  map[string]string
+// @Failure      404      {object}  map[string]string
+// @Failure      500      {object}  map[string]string
+// @Security     API-Key
+// @Router       /post/release/{post_id} [post]
+func (h *PostHandler) ReleasePost(c *gin.Context) {
+	postID := c.Param("post_id")
+	if postID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "post_id path param is required"})
+		return
+	}
+
+	err := h.postRepo.ReleasePost(c.Request.Context(), postID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Post with postID: " + postID + " not found."})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Issue occured releasing post " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"id": postID})
+}
+
+// DraftPost godoc
+// @Summary      Set a post to draft
+// @Description  Sets a post's status to draft and published_at to null
+// @Tags         posts
+// @Produce      json
+// @Param        post_id  path      string  true  "Post ID"
+// @Success      200      {object}  map[string]string
+// @Failure      400      {object}  map[string]string
+// @Failure      404      {object}  map[string]string
+// @Failure      500      {object}  map[string]string
+// @Security     API-Key
+// @Router       /post/draft/{post_id} [post]
+func (h *PostHandler) DraftPost(c *gin.Context) {
+	postID := c.Param("post_id")
+	if postID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "post_id path param is required"})
+		return
+	}
+
+	err := h.postRepo.DraftPost(c.Request.Context(), postID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Post with postID: " + postID + " not found."})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Issue occured setting post to draft " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"id": postID})
 }

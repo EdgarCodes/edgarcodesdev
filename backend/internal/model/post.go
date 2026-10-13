@@ -13,6 +13,7 @@ type Post struct {
 	Title       string		`json:"title"`
 	Excerpt     string		`json:"excerpt"`
 	Content     string		`json:"content"`
+	ContentHtml string		`json:"content_html"`
 	CoverImage  string		`json:"cover_image"`
 	Status      string		`json:"status"`
 	ReadTime    string		`json:"read_time"`

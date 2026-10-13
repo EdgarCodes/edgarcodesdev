@@ -4,6 +4,8 @@ definitions:
     properties:
       content:
         type: string
+      content_html:
+        type: string
       cover_image:
         type: string
       created_at:
@@ -164,6 +166,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - API-Key: []
       summary: Create a post
       tags:
       - posts
@@ -202,6 +206,125 @@ paths:
               type: string
             type: object
       summary: Get post by ID
+      tags:
+      - posts
+  /post/draft/{post_id}:
+    post:
+      description: Sets a post's status to draft and published_at to null
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - API-Key: []
+      summary: Set a post to draft
+      tags:
+      - posts
+  /post/release/{post_id}:
+    post:
+      description: Sets a post's status to published and published_at to now
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - API-Key: []
+      summary: Release a post
+      tags:
+      - posts
+  /post/slug/{post_slug}:
+    get:
+      description: Retrieves a single post by its slug
+      parameters:
+      - description: Post Slug
+        in: path
+        name: post_slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Post'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get post by its slug
       tags:
       - posts
   /posts:
@@ -319,4 +442,32 @@ paths:
       summary: Get all projects
       tags:
       - projects
+  /token:
+    post:
+      description: Creates API token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - API-Key: []
+      summary: Create API token
+      tags:
+      - tokens
+securityDefinitions:
+  API-Key:
+    in: header
+    name: X-API-Key
+    type: apiKey
 swagger: "2.0"
